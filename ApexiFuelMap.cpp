@@ -157,7 +157,6 @@ void readFuelMap(int fuelRequestNumber, const char rawData[]) {
 }
 
 /**
- * FIXME should be private, exposed only in order to send a sample map
  * Creates a PFC write packet containing the fuel map portion that corresponds to the given request number.
  * An ack packet (0xF2 0x02 0x0B) is expected after this is sent to PFC.
  *
