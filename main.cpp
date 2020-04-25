@@ -87,7 +87,7 @@ void simulateAutoTune() {
     int samples = 0;
     int cellsRange = 19;
     while (samples<=10000) {
-        updateAFRData(row, col, 14.7);
+        updateAFRData(row, col, 15.7);
 
         while (handleNextFuelMapWriteRequest()) {
             // loop in order to send all 8 writes requests
@@ -108,7 +108,7 @@ void simulateAutoTune() {
 
 int main() {
     for(int r = 1; r<=8; r++) {
-        unsigned char* rawData = createFuelMapWritePacket(r, sampleFuelMap);
+        char* rawData = createFuelMapWritePacket(r, sampleFuelMap);
         readFuelMap(r, rawData);
     }
     checkReadWrite();

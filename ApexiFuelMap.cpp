@@ -91,7 +91,7 @@ int getFuelMapColumn(int fuelRequestNumber) {
  * @param fuelRequestNumber defines the part of the map to be read
  * @param rawData the PFC raw map data
  */
-void readFuelMap(int fuelRequestNumber, const unsigned char rawData[]) {
+void readFuelMap(int fuelRequestNumber, const char rawData[]) {
     int row = getFuelMapRow(fuelRequestNumber);
     int col = getFuelMapColumn(fuelRequestNumber);
 
@@ -130,7 +130,7 @@ void readFuelMap(int fuelRequestNumber, const unsigned char rawData[]) {
  * The new fuel map is used to create the requests.
  * An ack packet (0xF2 0x02 0x0B) is expected after this is sent to PFC.
  */
-unsigned char* getCurrentNewFuelMapWritePacket() {
+char* getNextFuelMapWritePacket() {
     return createFuelMapWritePacket(fuelMapWriteRequest, newFuelMap);
 }
 
@@ -143,20 +143,20 @@ unsigned char* getCurrentNewFuelMapWritePacket() {
  * @param map the fuel map to send
  * @return the write packet for sending the fuel map to PFC
  */
-unsigned char* createFuelMapWritePacket(int fuelRequestNumber, double (&map)[FUEL_TABLE_SIZE][FUEL_TABLE_SIZE]) {
+char* createFuelMapWritePacket(int fuelRequestNumber, double (&map)[FUEL_TABLE_SIZE][FUEL_TABLE_SIZE]) {
 
     int row = getFuelMapRow(fuelRequestNumber);
     int col = getFuelMapColumn(fuelRequestNumber);
     union {
         int celValue;
-        unsigned char celValueBytes[2];
+        char celValueBytes[2];
     } fuelCell{};
 
-    unsigned char* pfcDataPacket = new unsigned char[103];
+    char* pfcDataPacket = new char[103];
 
-    const int requestId = (0xB0 + (fuelRequestNumber - 1));
-    const int packetSize = 102;
-    unsigned char checksum = 255 - requestId - packetSize;
+    const char requestId = (char)(0xB0 + (fuelRequestNumber - 1));
+    const char packetSize = 102;
+    char checksum = (char)(255 - requestId - packetSize);
 
     pfcDataPacket[0] = requestId;
     pfcDataPacket[1] = packetSize;
@@ -168,6 +168,9 @@ unsigned char* createFuelMapWritePacket(int fuelRequestNumber, double (&map)[FUE
         fuelCell.celValue = (int)((map[row][col] * 1000.0) / 4.0);
         pfcDataPacket[dataIdx++] = fuelCell.celValueBytes[0];
         pfcDataPacket[dataIdx++] = fuelCell.celValueBytes[1];
+
+        checksum -= fuelCell.celValueBytes[0];
+        checksum -= fuelCell.celValueBytes[1];
 
         // Move to next row/col
         row++;
@@ -301,4 +304,3 @@ double getCurrentFuel(int row, int col) {
 double getNewFuel(int row, int col){
     return newFuelMap[row][col];
 }
-
