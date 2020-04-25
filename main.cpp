@@ -4,7 +4,7 @@
 
 using namespace std;
 
-double sampleFuelMap[20][20] = {
+double testFuelMap[20][20] = {
     {1.0,1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.6,2.9,3.2,3.5,3.8,4.2,4.6,5.1,5.6,6.2},
     {1.1,1.2,1.3,1.4,1.6,1.7,1.9,2.1,2.3,2.5,2.7,3.0,3.3,3.7,4.0,4.4,4.9,5.4,5.9,6.5},
     {1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.6,2.9,3.2,3.5,3.8,4.2,4.6,5.1,5.6,6.2,6.8},
@@ -31,7 +31,7 @@ void debugPrint() {
     cout << "Initial fuel map\n";
     for (int row=0; row < 20; row++) {
         for (int col = 0; col < 20; col++) {
-            cout << setw(5) << fixed << setprecision(2) << sampleFuelMap[row][col];
+            cout << setw(5) << fixed << setprecision(2) << testFuelMap[row][col];
             if (col < 19) {
                 cout << ",";
             }
@@ -51,7 +51,7 @@ void debugPrint() {
     cout << "Fuel map diff (final - initial)\n";
     for (int row =0; row < 20; row++) {
         for (int col = 0; col < 20; col++) {
-            cout << setw(5) << fixed << setprecision(2) << getCurrentFuel(row, col) - sampleFuelMap[row][col];
+            cout << setw(5) << fixed << setprecision(2) << getCurrentFuel(row, col) - testFuelMap[row][col];
             if (col < 19) {
                 cout << ",";
             }
@@ -67,10 +67,10 @@ void checkReadWrite() {
             if (getCurrentFuel(r, c) != getNewFuel(r, c)) {
                 throw std::runtime_error("Current and newMap should not identical initially.");
             }
-            if (abs(getCurrentFuel(r, c) - sampleFuelMap[r][c]) > 0.005) {
+            if (abs(getCurrentFuel(r, c) - testFuelMap[r][c]) > 0.005) {
                 diffFound = true;
                 cerr << "Values deffer at [" << r << ", " << c << "]";
-                cerr << "Expected value: " << sampleFuelMap[r][c] << " Actual value: " << getCurrentFuel(r, c) << endl;
+                cerr << "Expected value: " << testFuelMap[r][c] << " Actual value: " << getCurrentFuel(r, c) << endl;
             }
         }
     }
@@ -107,10 +107,15 @@ void simulateAutoTune() {
 }
 
 int main() {
-    for(int r = 1; r<=8; r++) {
-        char* rawData = createFuelMapWritePacket(r, sampleFuelMap);
-        readFuelMap(r, rawData);
+    enableSampleFuelMapWrite();
+    int mapChunk = 1;
+    while (handleNextFuelMapWriteRequest()) {
+        readFuelMap(mapChunk, getNextFuelMapWritePacket());
+        cout << "Writing sample map chunk " << mapChunk << endl;
+        mapChunk++;
     }
+    cout << "Checking map/read write..." << endl;
     checkReadWrite();
+    cout << "Simulating autotune..." << endl;
     simulateAutoTune();
 }
