@@ -6,21 +6,6 @@
 using namespace std;
 
 /**
- * In order to read or write the entire fuel map; 8 requests are required.
- */
-const int FUEL_MAP_TOTAL_REQUESTS = 8;
-
-/**
- * The PFC fuel map is 20x20 rows.
- */
-const int FUEL_CELLS_PER_REQUEST = 50;
-
-/**
- * The PFC fuel map is 20x20 rows.
- */
-const int FUEL_TABLE_SIZE = 20;
-
-/**
  * This is the map that is currently in the PFC.
  */
 double currentFuelMap[FUEL_TABLE_SIZE][FUEL_TABLE_SIZE];
@@ -73,11 +58,6 @@ double targetAFR = 14.7;
  * This amount of cell changes are required in order for the map to be sent to PFC.
  */
 int minCellsChangesForWriteAttempt = 5;
-
-// For each calculated change 6 cells will be altered
-double cellPercentage[] = {0.05, 0.05, 0.05,
-                           0.05, 0.60, 0.05,
-                           0.05, 0.05, 0.05};
 
 /**
  * Counts how many times the fuel map was sent to PFC.
@@ -239,14 +219,17 @@ int calculateNewFuelMap() {
             if (loggedNumAfrMap[row][col] >= minCellSamples) {
                 // enough samples logged; re-calc fuel
                 const double loggedAvgAfr = loggedSumAfrMap[row][col] / loggedNumAfrMap[row][col];
-                const double fuelChange = (loggedAvgAfr / targetAFR) * currentFuelMap[row][col] - currentFuelMap[row][col];
-
-                int iCell = 0;
-                for (int wRow = max(0, row -1); wRow < min(FUEL_TABLE_SIZE, row + 1); wRow++) {
-                    for (int wCol = max(0, col -1); wCol < min(FUEL_TABLE_SIZE, col + 1); wCol++) {
-                        newFuelMap[wRow][wCol] = (fuelChange * cellPercentage[iCell++]) + newFuelMap[wRow][wCol];
-                        cellsChanged++;
+                if (abs(loggedAvgAfr - targetAFR) >= MIN_AFR_DELTA) {
+                    const double currentFuel = currentFuelMap[row][col];
+                    const double newFuel = (loggedAvgAfr / targetAFR) * currentFuel;
+                    // Make sure that no huge changes are made in the fuel map at once
+                    if (abs(newFuel - currentFuel) / currentFuel <= MAX_FUEL_PERCENTAGE_CHANGE) {
+                        newFuelMap[row][col] = newFuel;
+                    } else {
+                        const double maxFuelDelta = (newFuel < currentFuel) ? -MAX_FUEL_PERCENTAGE_CHANGE * currentFuel : MAX_FUEL_PERCENTAGE_CHANGE * currentFuel;
+                        newFuelMap[row][col] = maxFuelDelta + currentFuel;
                     }
+                    cellsChanged++;
                 }
             }
         }

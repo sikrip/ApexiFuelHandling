@@ -27,30 +27,6 @@ double sampleFuelMap[20][20] = {
     {2.5,2.8,3.1,3.4,3.7,4.1,4.5,5.0,5.5,6.0,6.6,7.3,8.0,8.8,9.7,10.7,11.7,12.9,14.2,15.6}
 };
 
-void checkReadWrite() {
-    bool diffFound = false;
-    for(int r=0; r<20; r++) {
-        for(int c=0; c<20; c++) {
-            if (getCurrentFuel(r, c) != getNewFuel(r, c)) {
-                throw std::runtime_error("Current and newMap should not identical initially.");
-            }
-            if (abs(getCurrentFuel(r, c) - sampleFuelMap[r][c]) > 0.005) {
-                diffFound = true;
-                cerr << "Values deffer at [" << r << ", " << c << "]";
-                cerr << "Expected value: " << sampleFuelMap[r][c] << " Actual value: " << getCurrentFuel(r, c) << endl;
-            }
-        }
-    }
-    if (diffFound) {
-        throw std::runtime_error("Fuel map read/write error.");
-    } else {
-        cout << "Reading and writing fuel map was successful!\n";
-    }
-}
-
-/**
- * Prints out the current state for debugging.
- */
 void debugPrint() {
     cout << "Initial fuel map\n";
     for (int row=0; row < 20; row++) {
@@ -82,24 +58,27 @@ void debugPrint() {
         }
         cout << "\n";
     }
-    /*cout << "AFR samples\n";
-    for (int row =0; row < 14; row++) {
-        for (int col = 0; col < 14; col++) {
-            if (loggedNumAfrMap[row][col] >0) {
-                cout << setw(4) << fixed << setprecision(1)
-                     << loggedSumAfrMap[row][col] / loggedNumAfrMap[row][col]
-                     << "(" << setprecision(0) << loggedNumAfrMap[row][col] << ")";
-            } else {
-                cout << setw(4) << fixed << setprecision(1)
-                     << 0
-                     << "(" << setprecision(0) << 0 << ")";
+}
+
+void checkReadWrite() {
+    bool diffFound = false;
+    for(int r=0; r<20; r++) {
+        for(int c=0; c<20; c++) {
+            if (getCurrentFuel(r, c) != getNewFuel(r, c)) {
+                throw std::runtime_error("Current and newMap should not identical initially.");
             }
-            if (col < 19) {
-                cout << ",";
+            if (abs(getCurrentFuel(r, c) - sampleFuelMap[r][c]) > 0.005) {
+                diffFound = true;
+                cerr << "Values deffer at [" << r << ", " << c << "]";
+                cerr << "Expected value: " << sampleFuelMap[r][c] << " Actual value: " << getCurrentFuel(r, c) << endl;
             }
         }
-        cout << "\n";
-    }*/
+    }
+    if (diffFound) {
+        throw std::runtime_error("Fuel map read/write error.");
+    } else {
+        cout << "Reading and writing fuel map was successful!\n";
+    }
 }
 
 void simulateAutoTune() {
@@ -107,8 +86,8 @@ void simulateAutoTune() {
     int col = 0;
     int samples = 0;
     int cellsRange = 19;
-    while (samples<=50000) {
-        updateAFRData(row, col, 11.0);
+    while (samples<=10000) {
+        updateAFRData(row, col, 15.0);
 
         while (handleNextFuelMapWriteRequest()) {
             cout << getCurrentNewFuelMapWritePacket() << "\n";
