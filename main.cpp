@@ -107,15 +107,21 @@ void simulateAutoTune() {
 }
 
 int main() {
-    enableSampleFuelMapWrite();
+    enableSampleFuelMapMode();
     int mapChunk = 1;
     while (handleNextFuelMapWriteRequest()) {
         readFuelMap(mapChunk, getNextFuelMapWritePacket());
         cout << "Writing sample map chunk " << mapChunk << endl;
         mapChunk++;
     }
+    if (handleNextFuelMapWriteRequest()) {
+        throw std::runtime_error("Sample map should be sent once.");
+    }
+
     cout << "Checking map/read write..." << endl;
     checkReadWrite();
+
+    disableSampleFuelMapMode();
     cout << "Simulating autotune..." << endl;
     simulateAutoTune();
 }
