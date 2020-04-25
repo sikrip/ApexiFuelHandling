@@ -87,10 +87,10 @@ void simulateAutoTune() {
     int samples = 0;
     int cellsRange = 19;
     while (samples<=10000) {
-        updateAFRData(row, col, 15.0);
+        updateAFRData(row, col, 14.7);
 
         while (handleNextFuelMapWriteRequest()) {
-            cout << getCurrentNewFuelMapWritePacket() << "\n";
+            // loop in order to send all 8 writes requests
         }
 
         samples++;
@@ -108,7 +108,7 @@ void simulateAutoTune() {
 
 int main() {
     for(int r = 1; r<=8; r++) {
-        string rawData = createFuelMapWritePacket(r, sampleFuelMap);
+        unsigned char* rawData = createFuelMapWritePacket(r, sampleFuelMap);
         readFuelMap(r, rawData);
     }
     checkReadWrite();

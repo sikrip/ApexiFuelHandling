@@ -30,10 +30,10 @@ static const double MAX_FUEL_PERCENTAGE_CHANGE = 0.1;
 
 using namespace std;
 
-string createFuelMapWritePacket(int fuelRequestNumber, double (&map)[20][20]);
+unsigned char* createFuelMapWritePacket(int fuelRequestNumber, double (&map)[20][20]);
 
-void readFuelMap(int fuelRequestNumber, const string& rawData);
-string getCurrentNewFuelMapWritePacket();
+void readFuelMap(int fuelRequestNumber, const unsigned char* rawData);
+unsigned char* getCurrentNewFuelMapWritePacket();
 void updateAFRData(int rpmIdx, int loadIdx, double afr);
 bool handleNextFuelMapWriteRequest();
 
