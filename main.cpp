@@ -60,7 +60,15 @@ void debugPrint() {
     }
 }
 
+void writeTestMap() {
+    for(int writeRequest = 1; writeRequest <= 8; writeRequest++) {
+        readFuelMap(writeRequest, createFuelMapWritePacket(writeRequest, testFuelMap));
+        cout << "Writing map request " << writeRequest << endl;
+    }
+}
+
 void checkReadWrite() {
+    cout << "Checking map/read write.\n";
     bool diffFound = false;
     for(int r=0; r<20; r++) {
         for(int c=0; c<20; c++) {
@@ -82,6 +90,7 @@ void checkReadWrite() {
 }
 
 void simulateAutoTune() {
+    cout << "Simulating auto-tune. " << endl;
     int row = 0;
     int col = 0;
     int samples = 0;
@@ -107,21 +116,7 @@ void simulateAutoTune() {
 }
 
 int main() {
-    enableSampleFuelMapMode();
-    int mapChunk = 1;
-    while (handleNextFuelMapWriteRequest()) {
-        readFuelMap(mapChunk, getNextFuelMapWritePacket());
-        cout << "Writing sample map chunk " << mapChunk << endl;
-        mapChunk++;
-    }
-    if (handleNextFuelMapWriteRequest()) {
-        throw std::runtime_error("Sample map should be sent once.");
-    }
-
-    cout << "Checking map/read write..." << endl;
+    writeTestMap();
     checkReadWrite();
-
-    disableSampleFuelMapMode();
-    cout << "Simulating autotune..." << endl;
     simulateAutoTune();
 }
