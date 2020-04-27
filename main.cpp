@@ -94,11 +94,11 @@ void simulateAutoTune() {
     int row = 0;
     int col = 0;
     int samples = 0;
-    int cellsRange = 19;
+    int cellsRange = 5;
     while (samples<=10000) {
         updateAFRData(row, col, 15.7);
 
-        while (handleNextFuelMapWriteRequest()) {
+        while (handleNextFuelMapWriteRequest(true)) {
             // loop in order to send all 8 writes requests
         }
 
