@@ -91,17 +91,19 @@ void checkReadWrite() {
 
 void simulateAutoTune() {
     cout << "Simulating auto-tune. " << endl;
-    int row = 0;
-    int col = 0;
+    const int rowStart = 1;
+    const int colStart = 1;
+    const int cellsRange = 2;
+    int row = rowStart;
+    int col = colStart;
     int samples = 0;
-    int cellsRange = 5;
-    while (samples<=10000) {
-        updateAFRData(row, col, 15.7);
+    while (samples<=100) {
+        updateAFRData(row, col, 13.7);
 
         while (handleNextFuelMapWriteRequest(3)) {
             if (getCurrentFuelMapWriteRequest() == 1) {
                 cout << "\nWriting fuel map..." << endl;
-                logFuelData(10);
+                logFuelData(9);
             }
         }
 
@@ -109,10 +111,10 @@ void simulateAutoTune() {
         col++;
         if (col > cellsRange) {
             row++;
-            col = 0;
+            col = colStart;
         }
         if (row > cellsRange){
-            row = 0;
+            row = rowStart;
         }
     }
     debugPrint();
