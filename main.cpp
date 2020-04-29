@@ -98,8 +98,11 @@ void simulateAutoTune() {
     while (samples<=10000) {
         updateAFRData(row, col, 15.7);
 
-        while (handleNextFuelMapWriteRequest(true)) {
-            // loop in order to send all 8 writes requests
+        while (handleNextFuelMapWriteRequest(3)) {
+            if (getCurrentFuelMapWriteRequest() == 1) {
+                cout << "\nWriting fuel map..." << endl;
+                logFuelData(10);
+            }
         }
 
         samples++;

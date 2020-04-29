@@ -29,7 +29,7 @@ static const double MIN_AFR_DELTA = 0.15;
 /**
  * This is the max percentage change that a single fuel cell can change in on cycle.
  */
-static const double MAX_FUEL_PERCENTAGE_CHANGE = 0.1;
+static const double MAX_FUEL_PERCENTAGE_CHANGE = 0.2;
 
 #include <sstream>
 
@@ -39,11 +39,12 @@ void readFuelMap(int fuelRequestNumber, const char* rawData);
 char* createFuelMapWritePacket(int fuelRequestNumber, double (&map)[FUEL_TABLE_SIZE][FUEL_TABLE_SIZE]);
 char* getNextFuelMapWritePacket();
 void updateAFRData(int rpmIdx, int loadIdx, double afr);
-bool handleNextFuelMapWriteRequest(bool log);
+bool handleNextFuelMapWriteRequest(int maxWriteRequests);
 
 double getCurrentFuel(int row, int col);
 double getNewFuel(int row, int col);
+int getCurrentFuelMapWriteRequest();
 
-void logFuelData();
+void logFuelData(int printMapSize);
 
 #endif //HELLOCPP_APEXUFUELMAP_H
